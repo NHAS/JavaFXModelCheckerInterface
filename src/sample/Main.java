@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.demo.JavaKeywordsAsync;
 
 public class Main extends Application {
 
@@ -16,6 +17,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("Automata");
         Scene windowScene = new Scene(root, 1000, 700);
+
         primaryStage.setScene(windowScene);
         primaryStage.show();
 
