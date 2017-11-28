@@ -1,22 +1,19 @@
 package sample;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import java.util.ResourceBundle;
 import java.net.URL;
+import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 public class Controller implements Initializable{
-    @FXML private Canvas modelDrawWindow;
+
+    @FXML private SwingNode modelDisplay;
 
     @FXML private AnchorPane mainWindowSize;
-
-    private GraphicsContext gc;
 
 
     @FXML
@@ -88,26 +85,26 @@ public class Controller implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gc = modelDrawWindow.getGraphicsContext2D();
-        gc.setFill(Color.BLACK);
-        gc.fillRect(50, 50, 100, 100);
+        createAndSetSwingDrawingPanel(modelDisplay);
 
-        modelDrawWindow.setOnMouseDragged(event -> gc.fillRect(event.getX(), event.getY(), 5, 5));
-
-        mainWindowSize.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                modelDrawWindow.setWidth(newValue.doubleValue());
-            }
-        });
-
-        mainWindowSize.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                modelDrawWindow.setHeight(newValue.doubleValue());
-            }
-        });
 
     }
+
+    public void createAndSetSwingDrawingPanel(final SwingNode swingNode) {
+        SwingUtilities.invokeLater(() -> {
+            JButton jButton = new JButton("Click me!");
+            jButton.setBounds(0,0,120,50);
+
+            JPanel panel = new JPanel();
+            panel.setLayout(null);
+            panel.add(jButton);
+
+            panel.setSize(120, 60);
+
+            swingNode.setContent(panel);
+
+        });
+    }
+
 
 }
