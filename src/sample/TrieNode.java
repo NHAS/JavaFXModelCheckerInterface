@@ -49,6 +49,11 @@ public class TrieNode<E> {
         return child.add(id.substring(1),val);
     }
 
+    public void add(ArrayList<String> input) {
+        for(String elementToAdd : input)
+            add(elementToAdd, (E)elementToAdd);
+    }
+
     public ArrayList<E> getId(String id){
         if(id == null || id.equals("")){
             ArrayList<E> returnVal = new ArrayList<E>();//temporary variable to prevent values getting alot of junk

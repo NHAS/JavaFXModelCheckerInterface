@@ -7,13 +7,10 @@ import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 
-import java.util.ArrayList;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.net.URL;
 import javax.swing.SwingUtilities;
 import javax.swing.*;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,35 +33,55 @@ import javafx.stage.Popup;
 public class Controller implements Initializable{
     private TrieNode<String> completionDictionary;
 
-    private static final String[] KEYWORDS = new String[] {
-            "abstract", "assert", "boolean", "break", "byte",
-            "case", "catch", "char", "class", "const",
-            "continue", "default", "do", "double", "else",
-            "enum", "extends", "final", "finally", "float",
-            "for", "goto", "if", "implements", "import",
-            "instanceof", "int", "interface", "long", "native",
-            "new", "package", "private", "protected", "public",
-            "return", "short", "static", "strictfp", "super",
-            "switch", "synchronized", "this", "throw", "throws",
-            "transient", "try", "void", "volatile", "while"
+    private static final String[] processTypes = new String[] {
+            "automata", "petrinet", "operation", "equation",
+
     };
 
-    private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
+    private static final String[] functions = new String[] {
+            "abs", "simp", "safe", "nfa2dfa"
+    };
+
+    private static final String[] terminals = new String[] {
+            "STOP", "ERROR"
+    };
+
+    private static final String[] keywords = new String[] {
+            "const", "range", "set", "if", "then", "else", "when", "forall"
+    };
+
+    private static final String PROCESSTYPES_PATTERN = "\\b(" + String.join("|", processTypes) + ")\\b";
+    private static final String FUNCTIONS_PATTERN = "\\b(" + String.join("|", functions) + ")\\b";
+    private static final String TERMINALS_PATTERN = "\\b(" + String.join("|", terminals) + ")\\b";
+    private static final String KEYWORDS_PATTERN = "\\b(" + String.join("|", keywords) + ")\\b";
+
+    private static final String SYMBOLS = "\\.\\.|\\.|,|:|\\[|\\]|\\(|\\)|->|~>|\\\\|@|\\$|\\?";
+    private static final String OPERATORS = "\\|\\||\\||&&|&|\\^|==|=|!=|<<|<=|<|>>|>=|>|\\+|-|\\*|\\/|%|!|\\?";
+    private static final String OPERATIONS = "~|#";
+    private static final String ACTION_LABEL_PATTERN = "[a-z][A-Za-z0-9_]*";
+    private static final String IDENT_PATTERN = "[A-Z][A-Za-z0-9_\\\\*]*";
+    private static final String INT_PATTERN = "[0-9][0-9]*";
+
     private static final String PAREN_PATTERN = "\\(|\\)";
     private static final String BRACE_PATTERN = "\\{|\\}";
     private static final String BRACKET_PATTERN = "\\[|\\]";
-    private static final String SEMICOLON_PATTERN = "\\;";
-    private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
-    private static final String COMMENT_PATTERN = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
+    private static final String COMMENT_PATTERN = "\\/\\/[^\n]*";
 
     private static final Pattern PATTERN = Pattern.compile(
-            "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+            "(?<COMMENT>" + COMMENT_PATTERN + ")"+
+            "|(?<PROCESSTYPE>" + PROCESSTYPES_PATTERN + ")" +
+            "|(?<FUNCTION>" + FUNCTIONS_PATTERN + ")" +
+            "|(?<TERMINAL>" + TERMINALS_PATTERN + ")" +
+            "|(?<KEYWORD>" + KEYWORDS_PATTERN + ")" +
+            "|(?<SYMBOL>" + SYMBOLS + ")" +
+            "|(?<OPERATOR>" + OPERATORS + ")" +
+            "|(?<OPERATION>" + OPERATIONS + ")" +
+            "|(?<ACTIONLABEL>" + ACTION_LABEL_PATTERN + ")" +
+            "|(?<IDENTIFER>" + IDENT_PATTERN + ")" +
+            "|(?<INT>" + INT_PATTERN + ")"
                     + "|(?<PAREN>" + PAREN_PATTERN + ")"
                     + "|(?<BRACE>" + BRACE_PATTERN + ")"
                     + "|(?<BRACKET>" + BRACKET_PATTERN + ")"
-                    + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
-                    + "|(?<STRING>" + STRING_PATTERN + ")"
-                    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
     );
 
 
@@ -142,10 +159,14 @@ public class Controller implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        completionDictionary = new TrieNode<>(KEYWORDS, KEYWORDS.length);
+
+        completionDictionary = new TrieNode<>(  new ArrayList<String>(Arrays.asList(processTypes)) );
+        completionDictionary.add(new ArrayList<String>(Arrays.asList(functions)));
+        completionDictionary.add(new ArrayList<String>(Arrays.asList(keywords)));
 
         createAndSetSwingDrawingPanel(modelDisplay);
-        userCodeInput.getStylesheets().add(JavaKeywordsAsync.class.getResource("java-keywords.css").toExternalForm());
+        userCodeInput.getStylesheets().add(sample.Main.class.getResource("automata-keywords.css").toExternalForm());
+
 
 
         Popup popup = new Popup();
@@ -242,7 +263,6 @@ public class Controller implements Initializable{
                         default: {
                             popupSelection.getItems().clear();
                             String currentWord = getWordAtIndex(userCodeInput.getCaretPosition());
-                            System.out.println(currentWord);
                             if(currentWord.length() > 0) {
                                 ArrayList<String> list = completionDictionary.getId(currentWord);
 
@@ -250,14 +270,16 @@ public class Controller implements Initializable{
                                     popupSelection.getItems().addAll(list);
                                     popupSelection.getSelectionModel().select(0);
                                     popup.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
-                                } else {
-                                    popup.hide();
+
+                                } else { // If we dont have any autocomplete suggestions dont show the box
+                                  popup.hide();
                                 }
+
+
                             } else {
-                                    popup.hide();
+                                popup.hide();
 
                             }
-                            // Apply the visual effects of syntax highlighting
                             userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
                         }
                         break;
@@ -267,6 +289,13 @@ public class Controller implements Initializable{
             } else { // Handles if there is a backspace
                 popupSelection.getItems().clear();
                 popup.hide();
+                // Apply the visual effects of syntax highlighting
+                userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
+            }
+
+            if(change.getInserted().length() != 0) {
+                // Apply the visual effects of syntax highlighting
+               userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
             }
 
 
@@ -287,16 +316,50 @@ public class Controller implements Initializable{
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder
                 = new StyleSpansBuilder<>();
+
+
         while(matcher.find()) {
-            String styleClass =
-                    matcher.group("KEYWORD") != null ? "keyword" :
-                            matcher.group("PAREN") != null ? "paren" :
-                                    matcher.group("BRACE") != null ? "brace" :
-                                            matcher.group("BRACKET") != null ? "bracket" :
-                                                    matcher.group("SEMICOLON") != null ? "semicolon" :
-                                                            matcher.group("STRING") != null ? "string" :
-                                                                    matcher.group("COMMENT") != null ? "comment" :
-                                                                            null; /* never happens */ assert styleClass != null;
+            String styleClass;
+
+            if (matcher.group("PROCESSTYPE") != null) {
+                styleClass = "process";
+            } else if (matcher.group("FUNCTION") != null) {
+                styleClass = "function";
+            } else if (matcher.group("TERMINAL") != null) {
+                if (matcher.group("TERMINAL").equals("STOP"))
+                    styleClass = "terminalStop";
+                else
+                    styleClass = "terminalError";
+            } else if(matcher.group("KEYWORD") != null) {
+                    styleClass = "keyword";
+            }else if(matcher.group("SYMBOL") != null) {
+                styleClass = "symbol";
+            } else if(matcher.group("OPERATOR") != null) {
+                styleClass = "operator";
+            } else if(matcher.group("OPERATION") != null) {
+                styleClass = "operation";
+            } else if(matcher.group("ACTIONLABEL") != null) {
+                styleClass = "actionLabel";
+            } else if(matcher.group("IDENTIFER") != null) {
+                styleClass = "identifier";
+            } else if(matcher.group("INT") != null) {
+                styleClass = "number";
+            } else if(matcher.group("PAREN") != null) {
+                styleClass = "paren";
+
+            } else if(matcher.group("BRACE") != null) {
+                styleClass = "brace";
+
+            }else if(matcher.group("BRACKET") != null) {
+                styleClass = "bracket";
+
+            } else if(matcher.group("COMMENT") != null) {
+                styleClass = "comment";
+            } else {
+                styleClass = null;
+            }
+
+
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
             lastKwEnd = matcher.end();
