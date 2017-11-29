@@ -1,6 +1,10 @@
 package sample;
 
-import com.sun.xml.internal.ws.util.StringUtils;
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,15 +26,16 @@ import org.fxmisc.richtext.CodeArea;
 
 
 import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.demo.JavaKeywordsAsync;
-
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import javafx.stage.Popup;
 
 
 
+
+
 public class Controller implements Initializable{
+    private ExecutorService executor;
     private TrieNode<String> completionDictionary;
 
     private static final String[] processTypes = new String[] {
@@ -165,7 +170,7 @@ public class Controller implements Initializable{
         completionDictionary.add(new ArrayList<String>(Arrays.asList(keywords)));
 
         createAndSetSwingDrawingPanel(modelDisplay);
-        userCodeInput.getStylesheets().add(sample.Main.class.getResource("automata-keywords.css").toExternalForm());
+        userCodeInput.getStylesheets().add(Main.class.getResource("automata-keywords.css").toExternalForm());
 
 
 
@@ -241,11 +246,26 @@ public class Controller implements Initializable{
 
         popup.getContent().add(popupSelection);
 
+
+        executor = Executors.newSingleThreadExecutor();
+
         userCodeInput.setParagraphGraphicFactory(LineNumberFactory.get(userCodeInput)); // Add line numbers
+        userCodeInput.richChanges()
+                .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
+                .successionEnds(Duration.ofMillis(500))
+                .supplyTask(this::computeHighlightingAsync)
+                .awaitLatest(userCodeInput.richChanges())
+                .filterMap(t -> {
+                    if(t.isSuccess()) {
+                        return Optional.of(t.get());
+                    } else {
+                        t.getFailure().printStackTrace();
+                        return Optional.empty();
+                    }
+                })
+                .subscribe(this::applyHighlighting);
 
         userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input
-            //For some reason applying styling after showing the popup box breaks it. I have no idea why.
-            userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
             if(change.getRemoved().getText().length() == 0 ) {  // If this isnt a backspace character
 
                 String currentUserCode = userCodeInput.getText();
@@ -257,7 +277,7 @@ public class Controller implements Initializable{
                         case '\n':
                         case '\t':
                         case ' ': { // If the user has broken off a word, dont continue autocompleting it.
-                            popup.hide();
+                           popup.hide();
                            popupSelection.getItems().clear();
                         }
                         break;
@@ -305,6 +325,22 @@ public class Controller implements Initializable{
         SwingUtilities.invokeLater(() -> {
 
         });
+    }
+
+    private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
+        String text = userCodeInput.getText();
+        Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
+            @Override
+            protected StyleSpans<Collection<String>> call() throws Exception {
+                return computeHighlighting(text);
+            }
+        };
+        executor.execute(task);
+        return task;
+    }
+
+    private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
+        userCodeInput.setStyleSpans(0, highlighting);
     }
 
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
@@ -392,6 +428,8 @@ public class Controller implements Initializable{
         // return current word being typed
         return prefix;
     }
+
+
 
 
 }
