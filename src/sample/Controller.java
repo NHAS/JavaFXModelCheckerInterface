@@ -147,6 +147,7 @@ public class Controller implements Initializable{
         createAndSetSwingDrawingPanel(modelDisplay);
         userCodeInput.getStylesheets().add(JavaKeywordsAsync.class.getResource("java-keywords.css").toExternalForm());
 
+
         Popup popup = new Popup();
 
         ListView popupSelection = new ListView();
@@ -156,7 +157,6 @@ public class Controller implements Initializable{
                 "-fx-padding: 5;"
         );
 
-        int[] lastCaretPosition = {0}; // cant tell the difference when in an array. So we can have a stateful lambda, which might make you cringe.
 
         popupSelection.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
@@ -164,27 +164,22 @@ public class Controller implements Initializable{
             public void handle(MouseEvent event) {
                 String selectedItem = (String)popupSelection.getSelectionModel().getSelectedItem();
                 if(selectedItem != null) {
-                    System.out.println("clicked on " + selectedItem);
 
                     String code = userCodeInput.getText();
                     int wordPosition = userCodeInput.getCaretPosition()-1; // we know where the user word is, but we dont know the start or end
 
-
-
                     int start = 0;
-                    for(start = wordPosition; start > 0 && !Character.isWhitespace(code.charAt(start)); start--);
+                    for(start = wordPosition; start > 0 && !Character.isWhitespace(code.charAt(start-1)) && Character.isLetterOrDigit(userCodeInput.getText().charAt(start-1)); start--);
+
 
                     int end = 0;
-                    for(end = wordPosition; end < code.length() && !Character.isWhitespace(code.charAt(end)); end++);
+                    for(end = wordPosition; end < code.length() && !Character.isWhitespace(code.charAt(end)) && Character.isLetterOrDigit(userCodeInput.getText().charAt(end)) ; end++);
 
 
                     userCodeInput.replaceText(start, end, selectedItem);
 
-
-
                     popupSelection.getItems().clear();
                     popup.hide();
-                    lastCaretPosition[0] = userCodeInput.getCaretPosition(); // Reupdating last caret position as it becomes invalid whe when we replace it.
                     userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText())); // Need to reupdate the styles when an insert has happened.
                 }
             }
@@ -197,28 +192,23 @@ public class Controller implements Initializable{
                 if(event.getCode() == KeyCode.ENTER) {
                     String selectedItem = (String)popupSelection.getSelectionModel().getSelectedItem();
                     if(selectedItem != null) {
-                        System.out.println("clicked on " + selectedItem);
+
 
                         String code = userCodeInput.getText();
                         int wordPosition = userCodeInput.getCaretPosition()-1; // we know where the user word is, but we dont know the start or end
 
-
+                        //Find the first whitespace or special character, so statements like for(int will give an autocomplete option
                         int start = 0;
-                        for(start = wordPosition; start > 0 && !Character.isWhitespace(code.charAt(start)); start--);
+                        for(start = wordPosition; start > 0 && !Character.isWhitespace(code.charAt(start-1)) && Character.isLetterOrDigit(userCodeInput.getText().charAt(start-1)); start--);
 
                         int end = 0;
-                        for(end = wordPosition; end < code.length() && !Character.isWhitespace(code.charAt(end)); end++);
-
-
+                        for(end = wordPosition; end < code.length() && !Character.isWhitespace(code.charAt(end)) && Character.isLetterOrDigit(userCodeInput.getText().charAt(end)); end++);
 
 
                         userCodeInput.replaceText(start, end, selectedItem);
 
-
-
                         popupSelection.getItems().clear();
                         popup.hide();
-                        lastCaretPosition[0] = userCodeInput.getCaretPosition(); // Reupdating last caret position as it becomes invalid whe when we replace it.
                         userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText())); // Need to reupdate the styles when an insert has happened.
                     }
                 }
@@ -230,16 +220,13 @@ public class Controller implements Initializable{
 
         popup.getContent().add(popupSelection);
 
-
-
-
         userCodeInput.setParagraphGraphicFactory(LineNumberFactory.get(userCodeInput)); // Add line numbers
 
         userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input
-
-            if(lastCaretPosition[0] < userCodeInput.getCaretPosition()  ) {  // If this isnt a backspace character
+            if(change.getRemoved().getText().length() == 0 ) {  // If this isnt a backspace character
 
                 String currentUserCode = userCodeInput.getText();
+
                 if( userCodeInput.getCaretPosition() < currentUserCode.length() ) {
 
                     char currentCharacter = userCodeInput.getText().charAt(userCodeInput.getCaretPosition());
@@ -254,15 +241,22 @@ public class Controller implements Initializable{
 
                         default: {
                             popupSelection.getItems().clear();
-                            ArrayList<String> list = completionDictionary.getId(getWordAtIndex(userCodeInput.getCaretPosition()));
+                            String currentWord = getWordAtIndex(userCodeInput.getCaretPosition());
+                            System.out.println(currentWord);
+                            if(currentWord.length() > 0) {
+                                ArrayList<String> list = completionDictionary.getId(currentWord);
 
-                            if (list.size() != 0) {
-                                popupSelection.getItems().addAll(list);
-                                popup.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
+                                if (list.size() != 0) {
+                                    popupSelection.getItems().addAll(list);
+                                    popupSelection.getSelectionModel().select(0);
+                                    popup.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
+                                } else {
+                                    popup.hide();
+                                }
                             } else {
-                                popup.hide();
-                            }
+                                    popup.hide();
 
+                            }
                             // Apply the visual effects of syntax highlighting
                             userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
                         }
@@ -275,7 +269,6 @@ public class Controller implements Initializable{
                 popup.hide();
             }
 
-            lastCaretPosition[0] = userCodeInput.getCaretPosition();
 
         });
 
@@ -319,13 +312,13 @@ public class Controller implements Initializable{
         int index;
 
         // get first whitespace "behind caret"
-        for (index = text.length() - 1; index >= 0 && !Character.isWhitespace(text.charAt(index)); index--);
+        for (index = text.length() - 1; index >= 0 && !Character.isWhitespace(text.charAt(index)) && Character.isLetterOrDigit(userCodeInput.getText().charAt(index)); index--);
 
         // get prefix and startIndex of word
         String prefix = text.substring(index + 1, text.length());
 
         // get first whitespace forward from caret
-        for (index = pos; index < userCodeInput.getLength() && !Character.isWhitespace(userCodeInput.getText().charAt(index)); index++);
+        for (index = pos; index < userCodeInput.getLength() && !Character.isWhitespace(userCodeInput.getText().charAt(index)) && Character.isLetterOrDigit(userCodeInput.getText().charAt(index)); index++);
 
         String suffix = userCodeInput.getText().substring(pos, index);
 

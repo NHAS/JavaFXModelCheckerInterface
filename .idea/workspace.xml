@@ -8,7 +8,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Interface/sample/sample.fxml" afterPath="$PROJECT_DIR$/out/production/Interface/sample/sample.fxml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sample/Controller.java" afterPath="$PROJECT_DIR$/src/sample/Controller.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sample/Main.java" afterPath="$PROJECT_DIR$/src/sample/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sample/TrieNode.java" afterPath="$PROJECT_DIR$/src/sample/TrieNode.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sample/sample.fxml" afterPath="$PROJECT_DIR$/src/sample/sample.fxml" />
     </list>
     <ignored path="JavaFxApplication.iws" />
@@ -84,57 +83,11 @@
       <file leaf-file-name="Controller.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/sample/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="370">
-              <caret line="178" column="20" selection-start-line="178" selection-start-column="20" selection-end-line="178" selection-end-column="20" />
+            <state relative-caret-position="581">
+              <caret line="182" column="38" selection-start-line="182" selection-start-column="38" selection-end-line="182" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="KeyEvent.java" pinned="false" current-in-tab="false">
-        <entry file="jar:///usr/pkg/java/sun-8/javafx-src.zip!/javafx/scene/input/KeyEvent.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="85" column="19" selection-start-line="85" selection-start-column="19" selection-end-line="85" selection-end-column="19" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PopupWindow.java" pinned="false" current-in-tab="false">
-        <entry file="jar:///usr/pkg/java/sun-8/javafx-src.zip!/javafx/stage/PopupWindow.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-114">
-              <caret line="99" column="22" selection-start-line="99" selection-start-column="22" selection-end-line="99" selection-end-column="22" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TrieNode.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/sample/TrieNode.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="26" column="63" selection-start-line="26" selection-start-column="63" selection-end-line="26" selection-end-column="63" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#228#246#0" expanded="true" />
-                <element signature="e#768#769#0" expanded="true" />
-                <element signature="e#825#826#0" expanded="true" />
-                <marker date="1511912403820" expanded="true" signature="640:716" ph="/**...*/" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CodeArea.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/CodeArea.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="12" column="50" selection-start-line="12" selection-start-column="30" selection-end-line="12" selection-end-column="50" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -148,6 +101,19 @@
             <state relative-caret-position="468">
               <caret line="50" column="86" selection-start-line="50" selection-start-column="73" selection-end-line="50" selection-end-column="86" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TrieNode.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/sample/TrieNode.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="367">
+              <caret line="55" column="51" selection-start-line="55" selection-start-column="51" selection-end-line="55" selection-end-column="51" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#228#246#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -541,8 +507,8 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4156692" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.13166486" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.171926" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13166486" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24920128" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -712,14 +678,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/GenericStyledArea.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="93">
-          <caret line="597" column="5" selection-start-line="595" selection-start-column="51" selection-end-line="597" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/StyledTextArea.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
@@ -736,11 +694,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/CodeArea.class">
+    <entry file="jar:///usr/pkg/java/sun-8/javafx-src.zip!/javafx/stage/Popup.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="12" column="50" selection-start-line="12" selection-start-column="30" selection-end-line="12" selection-end-column="50" />
+        <state relative-caret-position="252">
+          <caret line="38" column="35" selection-start-line="38" selection-start-column="35" selection-end-line="38" selection-end-column="35" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/pkg/java/sun-8/src.zip!/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="657" column="0" selection-start-line="657" selection-start-column="0" selection-end-line="657" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/sample/TrieNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="367">
+          <caret line="55" column="51" selection-start-line="55" selection-start-column="51" selection-end-line="55" selection-end-column="51" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#228#246#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -754,33 +731,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/sample/TrieNode.java">
+    <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/GenericStyledArea.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="26" column="63" selection-start-line="26" selection-start-column="63" selection-end-line="26" selection-end-column="63" />
+        <state relative-caret-position="234">
+          <caret line="334" column="57" selection-start-line="334" selection-start-column="57" selection-end-line="334" selection-end-column="57" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#228#246#0" expanded="true" />
-            <element signature="e#768#769#0" expanded="true" />
-            <element signature="e#825#826#0" expanded="true" />
-            <marker date="1511912403820" expanded="true" signature="640:716" ph="/**...*/" />
+            <element signature="e#12694#12695#0" expanded="true" />
+            <element signature="e#12743#12744#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="jar:///usr/pkg/java/sun-8/javafx-src.zip!/javafx/stage/PopupWindow.java">
+    <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/model/TextChange.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-114">
-          <caret line="99" column="22" selection-start-line="99" selection-start-column="22" selection-end-line="99" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///usr/pkg/java/sun-8/javafx-src.zip!/javafx/stage/Popup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="38" column="35" selection-start-line="38" selection-start-column="35" selection-end-line="38" selection-end-column="35" />
-          <folding />
+        <state relative-caret-position="144">
+          <caret line="12" column="22" selection-start-line="12" selection-start-column="22" selection-end-line="12" selection-end-column="22" />
+          <folding>
+            <element signature="e#628#629#0" expanded="true" />
+            <element signature="e#663#664#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -792,18 +761,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar:///usr/pkg/java/sun-8/src.zip!/java/lang/String.java">
+    <entry file="jar://$USER_HOME$/RichTextFX/richtextfx-demos/build/libs/richtextfx-demos-fat-1.0.0-SNAPSHOT.jar!/org/fxmisc/richtext/CodeArea.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="657" column="0" selection-start-line="657" selection-start-column="0" selection-end-line="657" selection-end-column="0" />
+        <state relative-caret-position="108">
+          <caret line="12" column="50" selection-start-line="12" selection-start-column="30" selection-end-line="12" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/pkg/java/sun-8/javafx-src.zip!/javafx/stage/PopupWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-114">
+          <caret line="99" column="22" selection-start-line="99" selection-start-column="22" selection-end-line="99" selection-end-column="22" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/sample/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="370">
-          <caret line="178" column="20" selection-start-line="178" selection-start-column="20" selection-end-line="178" selection-end-column="20" />
+        <state relative-caret-position="581">
+          <caret line="182" column="38" selection-start-line="182" selection-start-column="38" selection-end-line="182" selection-end-column="38" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
