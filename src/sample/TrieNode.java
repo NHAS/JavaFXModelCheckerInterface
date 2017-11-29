@@ -12,6 +12,26 @@ public class TrieNode<E> {
 
     public TrieNode(){}
 
+
+    /**
+     *
+     * @param inputValues Strings to populate the autocompletion structure
+     * @param size        Number of strings present.
+     */
+    public TrieNode(String[] inputValues, int size){
+        for(int i = 0; i < size; i++)
+                add(inputValues[i], (E)inputValues[i]);
+    }
+
+    /**
+     * Populate the autocompletion structure using an arraylist
+
+     */
+    public TrieNode(ArrayList<String> inputValues) {
+        inputValues.forEach(s -> {add(s, (E)s);});
+    }
+
+
     public boolean add(String id, E val){
         if(id == null || id.equals("")){
             values.add(val);

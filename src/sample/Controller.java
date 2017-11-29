@@ -2,6 +2,7 @@ package sample;
 
 import com.sun.xml.internal.ws.util.StringUtils;
 import javafx.embed.swing.SwingNode;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
@@ -17,6 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javafx.scene.control.ListView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CodeArea;
 
 
@@ -30,7 +34,7 @@ import javafx.stage.Popup;
 
 
 public class Controller implements Initializable{
-
+    private TrieNode<String> completionDictionary;
 
     private static final String[] KEYWORDS = new String[] {
             "abstract", "assert", "boolean", "break", "byte",
@@ -138,86 +142,149 @@ public class Controller implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        completionDictionary = new TrieNode<>(KEYWORDS, KEYWORDS.length);
+
+        createAndSetSwingDrawingPanel(modelDisplay);
         userCodeInput.getStylesheets().add(JavaKeywordsAsync.class.getResource("java-keywords.css").toExternalForm());
+
         Popup popup = new Popup();
 
         ListView popupSelection = new ListView();
-        popupSelection.setStyle( "-fx-background-color: #f7e1a0;" +
+        popupSelection.setStyle(
+                "-fx-background-color: #f7e1a0;" +
                 "-fx-text-fill: black;" +
-                "-fx-padding: 5;");
+                "-fx-padding: 5;"
+        );
 
-        popup.getContent().add(popupSelection);
-        TrieNode<String> completionDictionary = new TrieNode<>();
-        for(int i = 0; i < KEYWORDS.length; i++)
-                completionDictionary.add(KEYWORDS[i], KEYWORDS[i]);
+        int[] lastCaretPosition = {0}; // cant tell the difference when in an array. So we can have a stateful lambda, which might make you cringe.
 
-        int[] lastCaretPosition = {0}; // cant tell the different when in an array.
+        popupSelection.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-        createAndSetSwingDrawingPanel(modelDisplay);
-        userCodeInput.setParagraphGraphicFactory(LineNumberFactory.get(userCodeInput));
-        userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> {
+            @Override
+            public void handle(MouseEvent event) {
+                String selectedItem = (String)popupSelection.getSelectionModel().getSelectedItem();
+                if(selectedItem != null) {
+                    System.out.println("clicked on " + selectedItem);
 
-            if(lastCaretPosition[0] < userCodeInput.getCaretPosition() ) { // Handles if there is a backspace
+                    String code = userCodeInput.getText();
+                    int wordPosition = userCodeInput.getCaretPosition()-1; // we know where the user word is, but we dont know the start or end
 
-                char currentCharacter = userCodeInput.getText().charAt(userCodeInput.getCaretPosition());
-                switch (currentCharacter) {
-                    case '\n':
-                    case '\t':
-                    case ' ': {
-                        popup.hide();
-                        popupSelection.getItems().clear();
-                    }
-                    break;
 
-                    default: {
-                        popupSelection.getItems().clear();
-                        ArrayList<String> list = completionDictionary.getId(getWordAtIndex(userCodeInput.getCaretPosition()));
 
-                        if(list.size() != 0) {
-                            popupSelection.getItems().addAll(list);
-                            popup.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
-                        } else {
-                            popup.hide();
-                        }
+                    int start = 0;
+                    for(start = wordPosition; start > 0 && !Character.isWhitespace(code.charAt(start)); start--);
 
-                        userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
-                    }
-                    break;
+                    int end = 0;
+                    for(end = wordPosition; end < code.length() && !Character.isWhitespace(code.charAt(end)); end++);
+
+
+                    userCodeInput.replaceText(start, end, selectedItem);
+
+
+
+                    popupSelection.getItems().clear();
+                    popup.hide();
+                    lastCaretPosition[0] = userCodeInput.getCaretPosition(); // Reupdating last caret position as it becomes invalid whe when we replace it.
+                    userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText())); // Need to reupdate the styles when an insert has happened.
                 }
-            } else {
-                System.out.println(lastCaretPosition[0] + " " + userCodeInput.getCaretPosition());
-                popupSelection.getItems().clear();
-                popup.hide();
+            }
+        });
+
+        popupSelection.setOnKeyReleased(new EventHandler<KeyEvent>(){
+
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.getCode() == KeyCode.ENTER) {
+                    String selectedItem = (String)popupSelection.getSelectionModel().getSelectedItem();
+                    if(selectedItem != null) {
+                        System.out.println("clicked on " + selectedItem);
+
+                        String code = userCodeInput.getText();
+                        int wordPosition = userCodeInput.getCaretPosition()-1; // we know where the user word is, but we dont know the start or end
+
+
+                        int start = 0;
+                        for(start = wordPosition; start > 0 && !Character.isWhitespace(code.charAt(start)); start--);
+
+                        int end = 0;
+                        for(end = wordPosition; end < code.length() && !Character.isWhitespace(code.charAt(end)); end++);
+
+
+
+
+                        userCodeInput.replaceText(start, end, selectedItem);
+
+
+
+                        popupSelection.getItems().clear();
+                        popup.hide();
+                        lastCaretPosition[0] = userCodeInput.getCaretPosition(); // Reupdating last caret position as it becomes invalid whe when we replace it.
+                        userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText())); // Need to reupdate the styles when an insert has happened.
+                    }
+                }
 
             }
+        });
 
 
+
+        popup.getContent().add(popupSelection);
+
+
+
+
+        userCodeInput.setParagraphGraphicFactory(LineNumberFactory.get(userCodeInput)); // Add line numbers
+
+        userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input
+
+            if(lastCaretPosition[0] < userCodeInput.getCaretPosition()  ) {  // If this isnt a backspace character
+
+                String currentUserCode = userCodeInput.getText();
+                if( userCodeInput.getCaretPosition() < currentUserCode.length() ) {
+
+                    char currentCharacter = userCodeInput.getText().charAt(userCodeInput.getCaretPosition());
+                    switch (currentCharacter) {
+                        case '\n':
+                        case '\t':
+                        case ' ': { // If the user has broken off a word, dont continue autocompleting it.
+                            popup.hide();
+                            popupSelection.getItems().clear();
+                        }
+                        break;
+
+                        default: {
+                            popupSelection.getItems().clear();
+                            ArrayList<String> list = completionDictionary.getId(getWordAtIndex(userCodeInput.getCaretPosition()));
+
+                            if (list.size() != 0) {
+                                popupSelection.getItems().addAll(list);
+                                popup.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
+                            } else {
+                                popup.hide();
+                            }
+
+                            // Apply the visual effects of syntax highlighting
+                            userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
+                        }
+                        break;
+                    }
+                }
+
+            } else { // Handles if there is a backspace
+                popupSelection.getItems().clear();
+                popup.hide();
+            }
 
             lastCaretPosition[0] = userCodeInput.getCaretPosition();
 
         });
 
-
-
-
-
     }
-
 
 
 
     public void createAndSetSwingDrawingPanel(final SwingNode swingNode) {
         SwingUtilities.invokeLater(() -> {
-            JButton jButton = new JButton("Click me!");
-            jButton.setBounds(0,0,120,50);
-
-            JPanel panel = new JPanel();
-            panel.setLayout(null);
-            panel.add(jButton);
-
-            panel.setSize(120, 60);
-
-            swingNode.setContent(panel);
 
         });
     }
