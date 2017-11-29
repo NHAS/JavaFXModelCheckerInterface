@@ -244,6 +244,8 @@ public class Controller implements Initializable{
         userCodeInput.setParagraphGraphicFactory(LineNumberFactory.get(userCodeInput)); // Add line numbers
 
         userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input
+            //For some reason applying styling after showing the popup box breaks it. I have no idea why.
+            userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
             if(change.getRemoved().getText().length() == 0 ) {  // If this isnt a backspace character
 
                 String currentUserCode = userCodeInput.getText();
@@ -256,7 +258,7 @@ public class Controller implements Initializable{
                         case '\t':
                         case ' ': { // If the user has broken off a word, dont continue autocompleting it.
                             popup.hide();
-                            popupSelection.getItems().clear();
+                           popupSelection.getItems().clear();
                         }
                         break;
 
@@ -274,13 +276,10 @@ public class Controller implements Initializable{
                                 } else { // If we dont have any autocomplete suggestions dont show the box
                                   popup.hide();
                                 }
-
-
                             } else {
                                 popup.hide();
-
                             }
-                            userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
+
                         }
                         break;
                     }
@@ -290,13 +289,10 @@ public class Controller implements Initializable{
                 popupSelection.getItems().clear();
                 popup.hide();
                 // Apply the visual effects of syntax highlighting
-                userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
+
             }
 
-            if(change.getInserted().length() != 0) {
-                // Apply the visual effects of syntax highlighting
-               userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText()));
-            }
+
 
 
         });
