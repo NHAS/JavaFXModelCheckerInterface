@@ -166,17 +166,13 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        createAndSetSwingDrawingPanel(modelDisplay);
         completionDictionary = new TrieNode<>(  new ArrayList<String>(Arrays.asList(processTypes)) );
         completionDictionary.add(new ArrayList<String>(Arrays.asList(functions)));
         completionDictionary.add(new ArrayList<String>(Arrays.asList(keywords)));
 
-        createAndSetSwingDrawingPanel(modelDisplay);
+
         userCodeInput.getStylesheets().add(Main.class.getResource("automata-keywords.css").toExternalForm());
-
-
-
-
 
         ListView popupSelection = new ListView();
         popupSelection.setStyle(
@@ -246,15 +242,7 @@ public class Controller implements Initializable {
             }
         });
 
-         autocompleteBox.getContent().add(popupSelection);
-
-         autocompleteBox.setOnHiding(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent we) {
-                System.out.println("Stage is closing");
-            }
-        });
-
+        autocompleteBox.getContent().add(popupSelection);
 
         executor = Executors.newSingleThreadExecutor();
 
@@ -276,7 +264,7 @@ public class Controller implements Initializable {
                 .subscribe(this::applyHighlighting);
 
         userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input, used for autocompletion as that happens quickly.
-            if(change.getInserted().getStyleOfChar(0).isEmpty()) { // If this is a style event rather than the user typing.
+            if(change.getInserted().getStyleOfChar(0).isEmpty()) { // If this isnt a style event rather than the user typing.
                 if (change.getRemoved().getText().length() == 0) {  // If this isnt a backspace character
 
                     String currentUserCode = userCodeInput.getText();
@@ -352,7 +340,7 @@ public class Controller implements Initializable {
     }
 
     private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
-        userCodeInput.setStyleSpans(0, highlighting);
+        userCodeInput.setStyleSpans(0, highlighting); // Fires a style event
     }
 
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
