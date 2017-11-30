@@ -250,7 +250,8 @@ public class Controller implements Initializable{
         executor = Executors.newSingleThreadExecutor();
 
         userCodeInput.setParagraphGraphicFactory(LineNumberFactory.get(userCodeInput)); // Add line numbers
-        userCodeInput.richChanges()
+
+        userCodeInput.richChanges() // Set up syntax highlighting in another thread as regex finding can take a while.
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
                 .successionEnds(Duration.ofMillis(500))
                 .supplyTask(this::computeHighlightingAsync)
@@ -265,7 +266,7 @@ public class Controller implements Initializable{
                 })
                 .subscribe(this::applyHighlighting);
 
-        userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input
+        userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input, used for autocompletion as that happens quickly.
             if(change.getRemoved().getText().length() == 0 ) {  // If this isnt a backspace character
 
                 String currentUserCode = userCodeInput.getText();
@@ -318,8 +319,6 @@ public class Controller implements Initializable{
         });
 
     }
-
-
 
     public void createAndSetSwingDrawingPanel(final SwingNode swingNode) {
         SwingUtilities.invokeLater(() -> {
