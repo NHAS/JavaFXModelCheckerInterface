@@ -22,6 +22,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.WindowEvent;
 import org.fxmisc.richtext.CodeArea;
 
 
@@ -34,7 +35,8 @@ import javafx.stage.Popup;
 
 
 
-public class Controller implements Initializable{
+public class Controller implements Initializable {
+    private Popup autocompleteBox = new Popup();
     private ExecutorService executor;
     private TrieNode<String> completionDictionary;
 
@@ -174,7 +176,7 @@ public class Controller implements Initializable{
 
 
 
-        Popup popup = new Popup();
+
 
         ListView popupSelection = new ListView();
         popupSelection.setStyle(
@@ -205,7 +207,8 @@ public class Controller implements Initializable{
                     userCodeInput.replaceText(start, end, selectedItem);
 
                     popupSelection.getItems().clear();
-                    popup.hide();
+                    autocompleteBox.hide();
+
                     userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText())); // Need to reupdate the styles when an insert has happened.
                 }
             }
@@ -234,7 +237,8 @@ public class Controller implements Initializable{
                         userCodeInput.replaceText(start, end, selectedItem);
 
                         popupSelection.getItems().clear();
-                        popup.hide();
+                        autocompleteBox.hide();
+
                         userCodeInput.setStyleSpans(0, computeHighlighting(userCodeInput.getText())); // Need to reupdate the styles when an insert has happened.
                     }
                 }
@@ -242,9 +246,14 @@ public class Controller implements Initializable{
             }
         });
 
+         autocompleteBox.getContent().add(popupSelection);
 
-
-        popup.getContent().add(popupSelection);
+         autocompleteBox.setOnHiding(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent we) {
+                System.out.println("Stage is closing");
+            }
+        });
 
 
         executor = Executors.newSingleThreadExecutor();
@@ -253,7 +262,7 @@ public class Controller implements Initializable{
 
         userCodeInput.richChanges() // Set up syntax highlighting in another thread as regex finding can take a while.
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
-                .successionEnds(Duration.ofMillis(500))
+                .successionEnds(Duration.ofMillis(20))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(userCodeInput.richChanges())
                 .filterMap(t -> {
@@ -267,53 +276,57 @@ public class Controller implements Initializable{
                 .subscribe(this::applyHighlighting);
 
         userCodeInput.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())).subscribe(( change) -> { // Hook for detecting user input, used for autocompletion as that happens quickly.
-            if(change.getRemoved().getText().length() == 0 ) {  // If this isnt a backspace character
+            if(change.getInserted().getStyleOfChar(0).isEmpty()) { // If this is a style event rather than the user typing.
+                if (change.getRemoved().getText().length() == 0) {  // If this isnt a backspace character
 
-                String currentUserCode = userCodeInput.getText();
+                    String currentUserCode = userCodeInput.getText();
 
-                if( userCodeInput.getCaretPosition() < currentUserCode.length() ) {
+                    if (userCodeInput.getCaretPosition() < currentUserCode.length()) {
 
-                    char currentCharacter = userCodeInput.getText().charAt(userCodeInput.getCaretPosition());
-                    switch (currentCharacter) {
-                        case '\n':
-                        case '\t':
-                        case ' ': { // If the user has broken off a word, dont continue autocompleting it.
-                           popup.hide();
-                           popupSelection.getItems().clear();
-                        }
-                        break;
+                        char currentCharacter = userCodeInput.getText().charAt(userCodeInput.getCaretPosition());
+                        switch (currentCharacter) {
+                            case '\n':
+                            case '\t':
+                            case ' ': { // If the user has broken off a word, dont continue autocompleting it.
+                                autocompleteBox.hide();
 
-                        default: {
-                            popupSelection.getItems().clear();
-                            String currentWord = getWordAtIndex(userCodeInput.getCaretPosition());
-                            if(currentWord.length() > 0) {
-                                ArrayList<String> list = completionDictionary.getId(currentWord);
-
-                                if (list.size() != 0) {
-                                    popupSelection.getItems().addAll(list);
-                                    popupSelection.getSelectionModel().select(0);
-                                    popup.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
-
-                                } else { // If we dont have any autocomplete suggestions dont show the box
-                                  popup.hide();
-                                }
-                            } else {
-                                popup.hide();
+                                popupSelection.getItems().clear();
                             }
+                            break;
 
+                            default: {
+                                popupSelection.getItems().clear();
+                                String currentWord = getWordAtIndex(userCodeInput.getCaretPosition());
+                                if (currentWord.length() > 0) {
+                                    ArrayList<String> list = completionDictionary.getId(currentWord);
+
+                                    if (list.size() != 0) {
+                                        popupSelection.getItems().addAll(list);
+                                        popupSelection.getSelectionModel().select(0);
+
+                                        autocompleteBox.show(userCodeInput, userCodeInput.getCaretBounds().get().getMinX(), userCodeInput.getCaretBounds().get().getMaxY());
+
+                                    } else { // If we dont have any autocomplete suggestions dont show the box
+                                        autocompleteBox.hide();
+
+                                    }
+                                } else {
+                                    autocompleteBox.hide();
+
+                                }
+
+                            }
+                            break;
                         }
-                        break;
                     }
+
+                } else { // Handles if there is a backspace
+                    popupSelection.getItems().clear();
+                    autocompleteBox.hide();
+
                 }
 
-            } else { // Handles if there is a backspace
-                popupSelection.getItems().clear();
-                popup.hide();
-                // Apply the visual effects of syntax highlighting
-
             }
-
-
 
 
         });
